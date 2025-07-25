@@ -28,7 +28,7 @@ function generateId() {
 // Cargar información de la tienda
 function loadTiendaInfo() {
     return loadData('tienda_info', {
-        nombre: 'SUPERMERCADO APP',
+        nombre: 'Zevti APP',
         nit: '123456789',
         direccion: 'Calle Principal #123',
         telefono: '(555) 123-4567'
