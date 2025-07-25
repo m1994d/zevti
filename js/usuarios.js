@@ -23,7 +23,7 @@ function loadUsers() {
         {
             id: '3',
             nombre: 'Daniel Cristancho',
-            username: 'admin',
+            username: 'admin2',
             password: 'daniel123',
             role: 'administrador',
             createdAt: new Date().toISOString(),
