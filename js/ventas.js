@@ -28,7 +28,7 @@ function generateId() {
 // Cargar información de la tienda
 function loadTiendaInfo() {
     return loadData('tienda_info', {
-        nombre: 'ZEVTI APP',
+        nombre: 'SUPERMERCADO APP',
         nit: '123456789',
         direccion: 'Calle Principal #123',
         telefono: '(555) 123-4567'
@@ -38,6 +38,19 @@ function loadTiendaInfo() {
 // Guardar información de la tienda
 function saveTiendaInfo(info) {
     saveData('tienda_info', info);
+}
+
+// Cargar configuración de IVA
+function loadIVAConfig() {
+    return loadData('iva_config', {
+        porcentaje: 19, // 19% por defecto
+        activo: true
+    });
+}
+
+// Guardar configuración de IVA
+function saveIVAConfig(config) {
+    saveData('iva_config', config);
 }
 
 // Cargar clientes y productos para los selects
@@ -68,8 +81,25 @@ function loadSelects() {
 
 // Variables globales para la venta actual
 let currentSaleItems = [];
+let subtotalVenta = 0;
+let ivaVenta = 0;
 let totalVenta = 0;
 let ventaActual = null;
+
+// Calcular totales con IVA
+function calcularTotales() {
+    const ivaConfig = loadIVAConfig();
+    
+    subtotalVenta = currentSaleItems.reduce((sum, item) => sum + item.total, 0);
+    
+    if (ivaConfig.activo) {
+        ivaVenta = (subtotalVenta * ivaConfig.porcentaje) / 100;
+    } else {
+        ivaVenta = 0;
+    }
+    
+    totalVenta = subtotalVenta + ivaVenta;
+}
 
 // Agregar item a la venta
 function addItemToSale() {
@@ -115,7 +145,8 @@ function addItemToSale() {
     
     currentSaleItems.push(item);
     updateSaleDisplay();
-    updateTotal();
+    calcularTotales();
+    updateTotalDisplay();
     
     document.getElementById('producto-select').value = '';
     document.getElementById('cantidad').value = '';
@@ -151,17 +182,37 @@ function updateSaleDisplay() {
 function removeItemFromSale(itemId) {
     currentSaleItems = currentSaleItems.filter(item => item.id !== itemId);
     updateSaleDisplay();
-    updateTotal();
+    calcularTotales();
+    updateTotalDisplay();
     
     if (currentSaleItems.length === 0) {
         document.getElementById('completar-venta').disabled = true;
     }
 }
 
-// Actualizar total de la venta
-function updateTotal() {
-    totalVenta = currentSaleItems.reduce((sum, item) => sum + item.total, 0);
-    document.getElementById('total-venta').textContent = totalVenta.toFixed(2);
+// Actualizar visualización de totales
+function updateTotalDisplay() {
+    const ivaConfig = loadIVAConfig();
+    
+    let totalHTML = `
+        <div style="text-align: right; margin-top: 1rem;">
+            <div><strong>Subtotal: $${subtotalVenta.toFixed(2)}</strong></div>
+    `;
+    
+    if (ivaConfig.activo) {
+        totalHTML += `
+            <div><strong>IVA (${ivaConfig.porcentaje}%): $${ivaVenta.toFixed(2)}</strong></div>
+        `;
+    }
+    
+    totalHTML += `
+            <div style="font-size: 1.3rem; margin-top: 0.5rem; color: #2d3748;">
+                <strong>Total: $${totalVenta.toFixed(2)}</strong>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('total-venta-container').innerHTML = totalHTML;
 }
 
 // Completar venta
@@ -185,13 +236,19 @@ function completeSale() {
     const cajeroNombre = currentUser ? currentUser.name : 'Cajero Desconocido';
     const cajeroUsername = currentUser ? currentUser.username : 'desconocido';
     
-    // Crear venta con información del cajero
+    // Obtener configuración de IVA
+    const ivaConfig = loadIVAConfig();
+    
+    // Crear venta con información del cajero y IVA
     const venta = {
         id: generateId(),
         clienteId: cliente.id,
         clienteNombre: cliente.nombre,
         fecha: new Date().toISOString(),
         items: currentSaleItems,
+        subtotal: subtotalVenta,
+        ivaPorcentaje: ivaConfig.activo ? ivaConfig.porcentaje : 0,
+        ivaMonto: ivaVenta,
         total: totalVenta,
         cajeroNombre: cajeroNombre,
         cajeroUsername: cajeroUsername
@@ -215,19 +272,21 @@ function completeSale() {
     ventaActual = venta;
     
     currentSaleItems = [];
+    subtotalVenta = 0;
+    ivaVenta = 0;
     totalVenta = 0;
     updateSaleDisplay();
-    updateTotal();
+    updateTotalDisplay();
     displayVentas();
     
     document.getElementById('venta-form').reset();
     document.getElementById('completar-venta').disabled = true;
     document.getElementById('imprimir-ticket').style.display = 'block';
     
-    alert(`Venta completada exitosamente\nCajero: ${cajeroNombre}`);
+    alert(`Venta completada exitosamente\nTotal: $${venta.total.toFixed(2)}\nCajero: ${cajeroNombre}`);
 }
 
-// Generar ticket HTML con nombre del vendedor
+// Generar ticket HTML con IVA
 function generateTicketHTML(venta) {
     const tienda = loadTiendaInfo();
     const fecha = new Date(venta.fecha);
@@ -249,7 +308,7 @@ function generateTicketHTML(venta) {
                 <p>Fecha: ${fechaFormateada}</p>
                 <p>Hora: ${horaFormateada}</p>
                 <p>Cliente: ${venta.clienteNombre}</p>
-                <p>Vendedor: ${venta.cajeroNombre}</p>
+                <p>Cajero: ${venta.cajeroNombre}</p>
             </div>
             
             <div class="ticket-items">
@@ -272,7 +331,17 @@ function generateTicketHTML(venta) {
             </div>
             
             <div class="ticket-totals">
-                <p><strong>TOTAL: $${venta.total.toFixed(2)}</strong></p>
+                <p><strong>Subtotal: $${venta.subtotal.toFixed(2)}</strong></p>
+    `;
+    
+    if (venta.ivaPorcentaje > 0) {
+        ticketHTML += `
+            <p><strong>IVA (${venta.ivaPorcentaje}%): $${venta.ivaMonto.toFixed(2)}</strong></p>
+        `;
+    }
+    
+    ticketHTML += `
+                <p style="font-size: 14px; margin-top: 5px;"><strong>TOTAL: $${venta.total.toFixed(2)}</strong></p>
             </div>
             
             <div class="ticket-footer">
@@ -360,6 +429,35 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('direccion-tienda').value = tienda.direccion;
     document.getElementById('telefono-tienda').value = tienda.telefono;
     
+    // Crear contenedor para totales
+    const totalVentaContainer = document.createElement('div');
+    totalVentaContainer.id = 'total-venta-container';
+    totalVentaContainer.innerHTML = `
+        <div style="text-align: right; margin-top: 1rem;">
+            <div><strong>Subtotal: $0.00</strong></div>
+            <div><strong>IVA (19%): $0.00</strong></div>
+            <div style="font-size: 1.3rem; margin-top: 0.5rem; color: #2d3748;">
+                <strong>Total: $0.00</strong>
+            </div>
+        </div>
+    `;
+    
+    // Reemplazar el span existente con el nuevo contenedor
+    const oldTotalElement = document.getElementById('total-venta');
+    if (oldTotalElement) {
+        const parent = oldTotalElement.parentElement;
+        parent.replaceChild(totalVentaContainer, oldTotalElement);
+    } else {
+        // Si no existe, agregarlo después de items-venta
+        const ventaResumen = document.querySelector('.venta-resumen');
+        if (ventaResumen) {
+            const itemsVenta = document.getElementById('items-venta');
+            if (itemsVenta) {
+                itemsVenta.insertAdjacentElement('afterend', totalVentaContainer);
+            }
+        }
+    }
+    
     loadSelects();
     displayVentas();
     
@@ -407,14 +505,4 @@ document.addEventListener('DOMContentLoaded', function() {
             cerrarTicketModal();
         }
     });
-});
-
-// Mostrar menú de usuarios solo para administradores
-document.addEventListener('DOMContentLoaded', function() {
-    if (isAdmin()) {
-        const menuUsuarios = document.getElementById('menu-usuarios');
-        if (menuUsuarios) {
-            menuUsuarios.style.display = 'list-item';
-        }
-    }
 });

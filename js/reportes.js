@@ -30,7 +30,7 @@ function generarReporte() {
     if (fechaInicio && fechaFin) {
         const inicio = new Date(fechaInicio);
         const fin = new Date(fechaFin);
-        fin.setHours(23, 59, 59, 999); // Incluir todo el día final
+        fin.setHours(23, 59, 59, 999);
         
         ventasFiltradas = ventas.filter(venta => {
             const fechaVenta = new Date(venta.fecha);
@@ -60,6 +60,8 @@ function generarReporte() {
 
 // Calcular estadísticas generales
 function calcularEstadisticas(ventas) {
+    const subtotalTotal = ventas.reduce((sum, venta) => sum + parseFloat(venta.subtotal || 0), 0);
+    const ivaTotal = ventas.reduce((sum, venta) => sum + parseFloat(venta.ivaMonto || 0), 0);
     const totalVentas = ventas.reduce((sum, venta) => sum + parseFloat(venta.total), 0);
     const numeroVentas = ventas.length;
     const ticketPromedio = numeroVentas > 0 ? totalVentas / numeroVentas : 0;
@@ -201,7 +203,7 @@ function generarGrafico(ventas) {
             labels: labels,
             datasets: [{
                 label: 'Ventas por Fecha',
-                data: data,
+                data,
                 borderColor: '#667eea',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 borderWidth: 2,
@@ -233,20 +235,6 @@ function generarGrafico(ventas) {
         }
     });
 }
-
-// Inicializar cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    // Establecer fechas por defecto (últimos 30 días)
-    const hoy = new Date();
-    const hace30Dias = new Date();
-    hace30Dias.setDate(hace30Dias.getDate() - 30);
-    
-    document.getElementById('fecha-inicio').value = hace30Dias.toISOString().split('T')[0];
-    document.getElementById('fecha-fin').value = hoy.toISOString().split('T')[0];
-    
-    // Generar reporte inicial
-    generarReporte();
-});
 
 // Exportar a CSV
 function exportarCSV() {
@@ -297,18 +285,16 @@ function exportarExcel() {
     document.body.removeChild(link);
 }
 
-// Agrega estos botones al HTML de reportes.html, después del botón de generar reporte:
-/*
-<button onclick="exportarCSV()" class="btn-success">Exportar CSV</button>
-<button onclick="exportarExcel()" class="btn-info">Exportar Excel</button>
-*/
-
-// Mostrar menú de usuarios solo para administradores
+// Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    if (isAdmin()) {
-        const menuUsuarios = document.getElementById('menu-usuarios');
-        if (menuUsuarios) {
-            menuUsuarios.style.display = 'list-item';
-        }
-    }
+    // Establecer fechas por defecto (últimos 30 días)
+    const hoy = new Date();
+    const hace30Dias = new Date();
+    hace30Dias.setDate(hace30Dias.getDate() - 30);
+    
+    document.getElementById('fecha-inicio').value = hace30Dias.toISOString().split('T')[0];
+    document.getElementById('fecha-fin').value = hoy.toISOString().split('T')[0];
+    
+    // Generar reporte inicial
+    generarReporte();
 });

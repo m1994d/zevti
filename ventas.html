@@ -3,21 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ventas - Zevti App</title>
+    <title>Ventas - Zevti</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
-        <h1>Zevti App</h1>
+        <h1>Zevti</h1>
         <nav>
             <ul>
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="clientes.html">Clientes</a></li>
                 <li><a href="productos.html">Productos</a></li>
-                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="ventas.html" class="active">Ventas</a></li>
                 <li><a href="reportes.html">Reportes</a></li>
-                <!-- Solo mostrar el enlace de usuarios si es administrador -->
-<li><a href="usuarios.html" id="menu-usuarios" style="display: none;">Usuarios</a></li>
+                <li id="menu-usuarios" style="display: none;"><a href="usuarios.html">Usuarios</a></li>
             </ul>
         </nav>
     </header>
@@ -30,23 +29,27 @@
             <div class="form-section">
                 <h3>Información de la Tienda</h3>
                 <form id="tienda-form">
-                    <div class="form-group">
-                        <label for="nombre-tienda">Nombre de la Tienda:</label>
-                        <input type="text" id="nombre-tienda" placeholder="Nombre del supermercado">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombre-tienda">Nombre de la Tienda:</label>
+                            <input type="text" id="nombre-tienda" placeholder="Nombre del supermercado">
+                        </div>
+                        <div class="form-group">
+                            <label for="nit-tienda">NIT:</label>
+                            <input type="text" id="nit-tienda" placeholder="NIT de la tienda">
+                        </div>
+                        <div class="form-group">
+                            <label for="direccion-tienda">Dirección:</label>
+                            <input type="text" id="direccion-tienda" placeholder="Dirección de la tienda">
+                        </div>
+                        <div class="form-group">
+                            <label for="telefono-tienda">Teléfono:</label>
+                            <input type="text" id="telefono-tienda" placeholder="Teléfono de la tienda">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="nit-tienda">NIT:</label>
-                        <input type="text" id="nit-tienda" placeholder="NIT de la tienda">
+                    <div class="form-actions">
+                        <button type="button" id="guardar-tienda">Guardar Información</button>
                     </div>
-                    <div class="form-group">
-                        <label for="direccion-tienda">Dirección:</label>
-                        <input type="text" id="direccion-tienda" placeholder="Dirección de la tienda">
-                    </div>
-                    <div class="form-group">
-                        <label for="telefono-tienda">Teléfono:</label>
-                        <input type="text" id="telefono-tienda" placeholder="Teléfono de la tienda">
-                    </div>
-                    <button type="button" id="guardar-tienda">Guardar Información</button>
                 </form>
             </div>
 
@@ -83,8 +86,8 @@
                     <div id="items-venta">
                         <!-- Los items de venta se mostrarán aquí -->
                     </div>
-                    <div class="total-venta">
-                        <strong>Total: $<span id="total-venta">0.00</span></strong>
+                    <div id="total-venta-container">
+                        <!-- Los totales se mostrarán aquí dinámicamente -->
                     </div>
                     <button id="completar-venta" disabled>Completar Venta</button>
                     <button id="imprimir-ticket" style="display: none; background: #28a745; margin-top: 10px;">
@@ -96,21 +99,21 @@
             <div class="table-section">
                 <h3>Historial de Ventas</h3>
                 <div class="table-responsive">
-                <table id="ventas-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Cliente</th>
-                        <th>Cajero</th>
-                        <th>Fecha</th>
-                        <th>Total</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                    <tbody>
-                        <!-- Las ventas se cargarán aquí dinámicamente -->
-                    </tbody>
-                </table>
+                    <table id="ventas-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Cajero</th>
+                                <th>Fecha</th>
+                                <th>Total</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Las ventas se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -130,12 +133,19 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2025 Zevti App - By MadTech</p>
-    </footer>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="js/ventas.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/ventas.js"></script>
+    <script>
+        // Mostrar menú de usuarios solo para administradores
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof isAdmin === 'function' && isAdmin()) {
+                const menuUsuarios = document.getElementById('menu-usuarios');
+                if (menuUsuarios) {
+                    menuUsuarios.style.display = 'list-item';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
