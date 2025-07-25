@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ventas - Zevti App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Zevti App</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="clientes.html">Clientes</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="reportes.html">Reportes</a></li>
+                <!-- Solo mostrar el enlace de usuarios si es administrador -->
+<li><a href="usuarios.html" id="menu-usuarios" style="display: none;">Usuarios</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="container">
+            <h2>Gestión de Ventas</h2>
+            
+            <!-- Información de la tienda -->
+            <div class="form-section">
+                <h3>Información de la Tienda</h3>
+                <form id="tienda-form">
+                    <div class="form-group">
+                        <label for="nombre-tienda">Nombre de la Tienda:</label>
+                        <input type="text" id="nombre-tienda" placeholder="Nombre del supermercado">
+                    </div>
+                    <div class="form-group">
+                        <label for="nit-tienda">NIT:</label>
+                        <input type="text" id="nit-tienda" placeholder="NIT de la tienda">
+                    </div>
+                    <div class="form-group">
+                        <label for="direccion-tienda">Dirección:</label>
+                        <input type="text" id="direccion-tienda" placeholder="Dirección de la tienda">
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono-tienda">Teléfono:</label>
+                        <input type="text" id="telefono-tienda" placeholder="Teléfono de la tienda">
+                    </div>
+                    <button type="button" id="guardar-tienda">Guardar Información</button>
+                </form>
+            </div>
+
+            <div class="venta-section">
+                <div class="venta-form">
+                    <h3>Nueva Venta</h3>
+                    <form id="venta-form">
+                        <div class="form-group">
+                            <label for="cliente-select">Cliente:</label>
+                            <select id="cliente-select" required>
+                                <option value="">Seleccionar cliente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="producto-select">Producto:</label>
+                            <select id="producto-select" required>
+                                <option value="">Seleccionar producto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cantidad">Cantidad:</label>
+                            <input type="number" id="cantidad" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="descuento">Descuento (%):</label>
+                            <input type="number" id="descuento" min="0" max="100" value="0">
+                        </div>
+                        <button type="submit">Agregar a Venta</button>
+                    </form>
+                </div>
+
+                <div class="venta-resumen">
+                    <h3>Resumen de Venta</h3>
+                    <div id="items-venta">
+                        <!-- Los items de venta se mostrarán aquí -->
+                    </div>
+                    <div class="total-venta">
+                        <strong>Total: $<span id="total-venta">0.00</span></strong>
+                    </div>
+                    <button id="completar-venta" disabled>Completar Venta</button>
+                    <button id="imprimir-ticket" style="display: none; background: #28a745; margin-top: 10px;">
+                        Imprimir Ticket
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h3>Historial de Ventas</h3>
+                <table id="ventas-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Cajero</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                    <tbody>
+                        <!-- Las ventas se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para ticket de impresión -->
+    <div id="ticket-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="ticket-content">
+                <!-- El ticket se generará aquí -->
+            </div>
+            <div class="modal-actions">
+                <button onclick="imprimirTicket()" style="background: #28a745;">Imprimir Ticket</button>
+                <button onclick="cerrarTicketModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Zevti App - By MadTech</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/ventas.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

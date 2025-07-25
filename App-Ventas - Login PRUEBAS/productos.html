@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Zevti App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>Zevti App</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="clientes.html">Clientes</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="reportes.html">Reportes</a></li>
+                <!-- Solo mostrar el enlace de usuarios si es administrador -->
+<li><a href="usuarios.html" id="menu-usuarios" style="display: none;">Usuarios</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="container">
+            <h2>Gestión de Productos</h2>
+            
+            <div class="form-section">
+                <h3>Agregar Producto</h3>
+                <form id="producto-form">
+                    <div class="form-group">
+                        <label for="nombre-producto">Nombre:</label>
+                        <input type="text" id="nombre-producto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio:</label>
+                        <input type="number" id="precio" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock:</label>
+                        <input type="number" id="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoría:</label>
+                        <select id="categoria" required>
+                            <option value="">Seleccionar categoría</option>
+                            <option value="Alimentos">Alimentos</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Limpieza">Limpieza</option>
+                            <option value="Personal">Cuidado Personal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="imagen">Imagen:</label>
+                        <input type="file" id="imagen" accept="image/*">
+                    </div>
+                    <button type="submit">Guardar Producto</button>
+                </form>
+            </div>
+
+            <!-- Sección de búsqueda y filtros -->
+            <div class="search-section">
+                <h3>Buscar Productos</h3>
+                <div class="search-filters">
+                    <div class="search-group">
+                        <label for="search-input">Buscar por nombre:</label>
+                        <input type="text" id="search-input" placeholder="Escribe el nombre del producto...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="categoria-filter">Filtrar por categoría:</label>
+                        <select id="categoria-filter">
+                            <option value="">Todas las categorías</option>
+                            <option value="Alimentos">Alimentos</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Limpieza">Limpieza</option>
+                            <option value="Personal">Cuidado Personal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="stock-filter">Filtrar por stock:</label>
+                        <select id="stock-filter">
+                            <option value="">Todos los stocks</option>
+                            <option value="bajo">Stock bajo (< 10)</option>
+                            <option value="medio">Stock medio (10-50)</option>
+                            <option value="alto">Stock alto (> 50)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="precio-min">Precio mínimo:</label>
+                        <input type="number" id="precio-min" placeholder="0" step="0.01">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="precio-max">Precio máximo:</label>
+                        <input type="number" id="precio-max" placeholder="1000" step="0.01">
+                    </div>
+                    
+                    <button id="clear-filters" type="button">Limpiar Filtros</button>
+                </div>
+                
+                <div class="search-stats">
+                    <span id="result-count">Mostrando todos los productos</span>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h3>Lista de Productos</h3>
+                <table id="productos-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Imagen</th>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Categoría</th>
+                            <th>Código QR</th>
+                            <th>Código de Barras</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los productos se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal para mostrar códigos grandes -->
+    <div id="code-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-code-container"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Zevti App - By MadTech</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="js/productos.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html> 

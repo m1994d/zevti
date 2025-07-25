@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Zevti App</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Zevti App</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="clientes.html">Clientes</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="reportes.html" class="active">Reportes</a></li>
+                <!-- Solo mostrar el enlace de usuarios si es administrador -->
+<li><a href="usuarios.html" id="menu-usuarios" style="display: none;">Usuarios</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="container">
+            <h2>Reportes y Estadísticas</h2>
+            
+            <div class="form-section">
+                <h3>Filtros de Reporte</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="fecha-inicio">Fecha Inicio:</label>
+                        <input type="date" id="fecha-inicio">
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha-fin">Fecha Fin:</label>
+                        <input type="date" id="fecha-fin">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo-reporte">Tipo de Reporte:</label>
+                        <select id="tipo-reporte">
+                            <option value="ventas">Ventas</option>
+                            <option value="productos">Productos Más Vendidos</option>
+                            <option value="clientes">Clientes Frecuentes</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="generarReporte()" class="btn-primary">Generar Reporte</button>
+            </div>
+
+            <div class="section">
+                <h3>Estadísticas Generales</h3>
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>Ventas Totales</h3>
+                        <p id="total-ventas">$0.00</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Número de Ventas</h3>
+                        <p id="numero-ventas">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Ticket Promedio</h3>
+                        <p id="ticket-promedio">$0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Gráficos</h3>
+                <div class="chart-container">
+                    <canvas id="ventasChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h3>Detalle del Reporte</h3>
+                <div class="table-responsive">
+                    <table id="reporte-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Productos</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Datos del reporte -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Zevti App - By MadTech</p>
+    </footer>
+
+    <script src="js/reportes.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
