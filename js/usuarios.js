@@ -7,7 +7,7 @@ function loadUsers() {
             nombre: 'Administrador',
             username: 'admin',
             password: 'admin123',
-            role: 'administrador',
+            role: 'cajero',
             createdAt: new Date().toISOString(),
             lastLogin: null
         },
