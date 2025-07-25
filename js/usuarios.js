@@ -19,6 +19,15 @@ function loadUsers() {
             role: 'cajero',
             createdAt: new Date().toISOString(),
             lastLogin: null
+        },
+        {
+            id: '3',
+            nombre: 'Daniel Cristancho',
+            username: 'admin',
+            password: 'daniel123',
+            role: 'administrador',
+            createdAt: new Date().toISOString(),
+            lastLogin: null
         }
     ];
 }
