@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Zevti</title>
+    <title>Login - Zevti App</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         body {
@@ -13,6 +13,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 1rem;
         }
         
         .login-container {
@@ -23,6 +24,7 @@
             width: 100%;
             max-width: 400px;
             text-align: center;
+            animation: slideIn 0.5s ease;
         }
         
         .login-logo {
@@ -98,6 +100,17 @@
             color: #718096;
             font-size: 0.9rem;
         }
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -129,6 +142,10 @@
             cajero / cajero123</p>
         </div>
     </div>
+
+    <footer>
+        <p>&copy; 2025 Zevti App - By MadTech</p>
+    </footer>
 
     <script src="js/auth.js"></script>
 </body>
