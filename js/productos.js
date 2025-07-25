@@ -13,11 +13,10 @@ function generateId() {
     return Date.now().toString();
 }
 
-// Generar código único para el producto (para QR y código de barras)
+// Generar código único para el producto
 function generateProductCode(productId) {
-    // Crear un código basado en el ID y algunas letras
     const prefix = 'PROD';
-    const suffix = productId.slice(-4); // Últimos 4 dígitos del ID
+    const suffix = productId.slice(-4);
     return prefix + suffix;
 }
 
@@ -25,14 +24,19 @@ function generateProductCode(productId) {
 function addProducto(producto) {
     const productos = loadProductos();
     producto.id = generateId();
-    producto.codigo = generateProductCode(producto.id); // Generar código único
+    producto.codigo = generateProductCode(producto.id);
     productos.push(producto);
     saveProductos(productos);
     return producto;
 }
 
-// Actualizar producto
+// Actualizar producto (solo para administradores)
 function updateProducto(id, productoData) {
+    if (!hasPermission('edit_products')) {
+        alert('No tienes permisos para editar productos');
+        return null;
+    }
+    
     const productos = loadProductos();
     const index = productos.findIndex(p => p.id === id);
     if (index !== -1) {
@@ -43,8 +47,13 @@ function updateProducto(id, productoData) {
     return null;
 }
 
-// Eliminar producto
+// Eliminar producto (solo para administradores)
 function deleteProducto(id) {
+    if (!hasPermission('delete_products')) {
+        alert('No tienes permisos para eliminar productos');
+        return [];
+    }
+    
     const productos = loadProductos();
     const filtered = productos.filter(p => p.id !== id);
     saveProductos(filtered);
@@ -55,7 +64,7 @@ function deleteProducto(id) {
 function generateQRCode(text, containerId) {
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = ''; // Limpiar contenido previo
+        container.innerHTML = '';
         new QRCode(container, {
             text: text,
             width: 80,
@@ -67,20 +76,18 @@ function generateQRCode(text, containerId) {
     }
 }
 
-// Generar código de barras simple (visual)
+// Generar código de barras simple
 function generateBarcodeHTML(code, containerId) {
     const container = document.getElementById(containerId);
     if (container) {
-        // Crear una representación visual simple de código de barras
         let barcodeHTML = '<div class="barcode-container">';
         barcodeHTML += '<div style="display: flex; justify-content: center; margin: 5px 0;">';
         
-        // Convertir el código a una secuencia de barras (simplificada)
         const codeString = code.toString();
         for (let i = 0; i < codeString.length; i++) {
             const char = codeString.charAt(i);
             const charCode = char.charCodeAt(0);
-            const bars = charCode % 8 + 2; // Número de barras basado en el carácter
+            const bars = charCode % 8 + 2;
             
             for (let j = 0; j < bars; j++) {
                 const width = (j % 2 === 0) ? '2px' : '4px';
@@ -109,14 +116,11 @@ function getStockClass(stock) {
 // Función para filtrar productos
 function filterProductos(productos, searchTerm, categoria, stockFilter, precioMin, precioMax) {
     return productos.filter(producto => {
-        // Búsqueda por nombre
         const matchesSearch = searchTerm === '' || 
             producto.nombre.toLowerCase().includes(searchTerm.toLowerCase());
         
-        // Filtro por categoría
         const matchesCategoria = categoria === '' || producto.categoria === categoria;
         
-        // Filtro por stock
         let matchesStock = true;
         if (stockFilter === 'bajo') {
             matchesStock = producto.stock < 10;
@@ -126,7 +130,6 @@ function filterProductos(productos, searchTerm, categoria, stockFilter, precioMi
             matchesStock = producto.stock > 50;
         }
         
-        // Filtros por precio
         const precio = parseFloat(producto.precio);
         const matchesPrecioMin = precioMin === '' || precio >= parseFloat(precioMin);
         const matchesPrecioMax = precioMax === '' || precio <= parseFloat(precioMax);
@@ -135,11 +138,15 @@ function filterProductos(productos, searchTerm, categoria, stockFilter, precioMi
     });
 }
 
-// Mostrar productos en la tabla (con posibilidad de productos filtrados)
+// Mostrar productos en la tabla
 function displayProductos(productosToDisplay = null) {
     const productos = productosToDisplay || loadProductos();
     const tbody = document.querySelector('#productos-table tbody');
     tbody.innerHTML = '';
+
+    // Verificar permisos
+    const canEdit = hasPermission('edit_products');
+    const canDelete = hasPermission('delete_products');
 
     productos.forEach(producto => {
         const imagenHTML = producto.imagen ? 
@@ -148,6 +155,14 @@ function displayProductos(productosToDisplay = null) {
             
         const stockClass = getStockClass(producto.stock);
         const stockHTML = `<span class="${stockClass}">${producto.stock}</span>`;
+        
+        // Botones de acción según permisos
+        const actionButtons = `
+            <td class="action-buttons">
+                ${canEdit ? `<button onclick="editProducto('${producto.id}')">Editar</button>` : '<span>-</span>'}
+                ${canDelete ? `<button onclick="deleteProductoHandler('${producto.id}')" style="background: #dc3545;">Eliminar</button>` : '<span>-</span>'}
+            </td>
+        `;
             
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -163,21 +178,16 @@ function displayProductos(productosToDisplay = null) {
             <td>
                 <div id="barcode-${producto.id}" class="barcode" onclick="showLargeCode('BARCODE', '${producto.codigo}', '${producto.nombre}')"></div>
             </td>
-            <td class="action-buttons">
-                <button onclick="editProducto('${producto.id}')">Editar</button>
-                <button onclick="deleteProductoHandler('${producto.id}')">Eliminar</button>
-            </td>
+            ${actionButtons}
         `;
         tbody.appendChild(row);
         
-        // Generar códigos después de que se agreguen al DOM
         setTimeout(() => {
             generateQRCode(producto.codigo, `qr-${producto.id}`);
             generateBarcodeHTML(producto.codigo, `barcode-${producto.id}`);
         }, 100);
     });
     
-    // Actualizar contador de resultados
     updateResultCount(productos.length);
 }
 
@@ -278,6 +288,11 @@ document.getElementById('producto-form').addEventListener('submit', function(e) 
 
 // Editar producto
 function editProducto(id) {
+    if (!hasPermission('edit_products')) {
+        alert('No tienes permisos para editar productos');
+        return;
+    }
+    
     const productos = loadProductos();
     const producto = productos.find(p => p.id === id);
     
@@ -287,7 +302,6 @@ function editProducto(id) {
         document.getElementById('stock').value = producto.stock;
         document.getElementById('categoria').value = producto.categoria;
         
-        // Cambiar el comportamiento del formulario para editar
         const form = document.getElementById('producto-form');
         form.onsubmit = function(e) {
             e.preventDefault();
@@ -313,7 +327,7 @@ function editProducto(id) {
                     updateProducto(id, updatedProducto);
                     displayProductos();
                     form.reset();
-                    form.onsubmit = null; // Restaurar comportamiento original
+                    form.onsubmit = null;
                     alert('Producto actualizado exitosamente');
                 };
                 
@@ -330,7 +344,7 @@ function editProducto(id) {
                 updateProducto(id, updatedProducto);
                 displayProductos();
                 form.reset();
-                form.onsubmit = null; // Restaurar comportamiento original
+                form.onsubmit = null;
                 alert('Producto actualizado exitosamente');
             }
         };
@@ -339,6 +353,11 @@ function editProducto(id) {
 
 // Eliminar producto
 function deleteProductoHandler(id) {
+    if (!hasPermission('delete_products')) {
+        alert('No tienes permisos para eliminar productos');
+        return;
+    }
+    
     if (confirm('¿Estás seguro de eliminar este producto?')) {
         deleteProducto(id);
         displayProductos();
@@ -374,23 +393,18 @@ function clearFilters() {
 document.addEventListener('DOMContentLoaded', function() {
     displayProductos();
     
-    // Event listeners para búsqueda en tiempo real
     document.getElementById('search-input').addEventListener('input', applyFilters);
     document.getElementById('categoria-filter').addEventListener('change', applyFilters);
     document.getElementById('stock-filter').addEventListener('change', applyFilters);
     document.getElementById('precio-min').addEventListener('input', applyFilters);
     document.getElementById('precio-max').addEventListener('input', applyFilters);
-    
-    // Event listener para limpiar filtros
     document.getElementById('clear-filters').addEventListener('click', clearFilters);
     
-    // Cerrar modal con X
     const closeBtn = document.querySelector('.close');
     if (closeBtn) {
         closeBtn.addEventListener('click', closeModal);
     }
     
-    // Cerrar modal haciendo clic fuera
     const modal = document.getElementById('code-modal');
     if (modal) {
         modal.addEventListener('click', function(e) {
@@ -400,10 +414,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Cerrar con tecla Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeModal();
         }
     });
+});
+
+// Mostrar menú de usuarios solo para administradores
+document.addEventListener('DOMContentLoaded', function() {
+    if (isAdmin()) {
+        const menuUsuarios = document.getElementById('menu-usuarios');
+        if (menuUsuarios) {
+            menuUsuarios.style.display = 'list-item';
+        }
+    }
 });

@@ -22,8 +22,13 @@ function addCliente(cliente) {
     return cliente;
 }
 
-// Actualizar cliente
+// Actualizar cliente (solo para administradores)
 function updateCliente(id, clienteData) {
+    if (!hasPermission('edit_clients')) {
+        alert('No tienes permisos para editar clientes');
+        return null;
+    }
+    
     const clientes = loadClientes();
     const index = clientes.findIndex(c => c.id === id);
     if (index !== -1) {
@@ -34,8 +39,13 @@ function updateCliente(id, clienteData) {
     return null;
 }
 
-// Eliminar cliente
+// Eliminar cliente (solo para administradores)
 function deleteCliente(id) {
+    if (!hasPermission('delete_clients')) {
+        alert('No tienes permisos para eliminar clientes');
+        return [];
+    }
+    
     const clientes = loadClientes();
     const filtered = clientes.filter(c => c.id !== id);
     saveClientes(filtered);
@@ -49,6 +59,17 @@ function displayClientes() {
     tbody.innerHTML = '';
 
     clientes.forEach(cliente => {
+        // Verificar permisos para mostrar botones de edición/eliminación
+        const canEdit = hasPermission('edit_clients');
+        const canDelete = hasPermission('delete_clients');
+        
+        const actionButtons = `
+            <td class="action-buttons">
+                ${canEdit ? `<button onclick="editCliente('${cliente.id}')">Editar</button>` : '<span>-</span>'}
+                ${canDelete ? `<button onclick="deleteClienteHandler('${cliente.id}')" style="background: #dc3545;">Eliminar</button>` : '<span>-</span>'}
+            </td>
+        `;
+        
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${cliente.id}</td>
@@ -56,10 +77,7 @@ function displayClientes() {
             <td>${cliente.email}</td>
             <td>${cliente.telefono}</td>
             <td>${cliente.direccion}</td>
-            <td class="action-buttons">
-                <button onclick="editCliente('${cliente.id}')">Editar</button>
-                <button onclick="deleteClienteHandler('${cliente.id}')">Eliminar</button>
-            </td>
+            ${actionButtons}
         `;
         tbody.appendChild(row);
     });
@@ -84,6 +102,11 @@ document.getElementById('cliente-form').addEventListener('submit', function(e) {
 
 // Editar cliente
 function editCliente(id) {
+    if (!hasPermission('edit_clients')) {
+        alert('No tienes permisos para editar clientes');
+        return;
+    }
+    
     const clientes = loadClientes();
     const cliente = clientes.find(c => c.id === id);
     
@@ -93,7 +116,6 @@ function editCliente(id) {
         document.getElementById('telefono').value = cliente.telefono;
         document.getElementById('direccion').value = cliente.direccion;
         
-        // Cambiar el comportamiento del formulario para editar
         const form = document.getElementById('cliente-form');
         form.onsubmit = function(e) {
             e.preventDefault();
@@ -108,7 +130,7 @@ function editCliente(id) {
             updateCliente(id, updatedCliente);
             displayClientes();
             form.reset();
-            form.onsubmit = null; // Restaurar comportamiento original
+            form.onsubmit = null;
             alert('Cliente actualizado exitosamente');
         };
     }
@@ -116,6 +138,11 @@ function editCliente(id) {
 
 // Eliminar cliente
 function deleteClienteHandler(id) {
+    if (!hasPermission('delete_clients')) {
+        alert('No tienes permisos para eliminar clientes');
+        return;
+    }
+    
     if (confirm('¿Estás seguro de eliminar este cliente?')) {
         deleteCliente(id);
         displayClientes();
@@ -126,4 +153,14 @@ function deleteClienteHandler(id) {
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
     displayClientes();
+});
+
+// Mostrar menú de usuarios solo para administradores
+document.addEventListener('DOMContentLoaded', function() {
+    if (isAdmin()) {
+        const menuUsuarios = document.getElementById('menu-usuarios');
+        if (menuUsuarios) {
+            menuUsuarios.style.display = 'list-item';
+        }
+    }
 });

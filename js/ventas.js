@@ -28,10 +28,10 @@ function generateId() {
 // Cargar información de la tienda
 function loadTiendaInfo() {
     return loadData('tienda_info', {
-        nombre: 'MadTech APP',
-        nit: '1094945331-1',
-        direccion: 'Carrera 13 #17 -74',
-        telefono: '(57) 3054668929'
+        nombre: 'ZEVTI APP',
+        nit: '123456789',
+        direccion: 'Calle Principal #123',
+        telefono: '(555) 123-4567'
     });
 }
 
@@ -48,11 +48,9 @@ function loadSelects() {
     const clienteSelect = document.getElementById('cliente-select');
     const productoSelect = document.getElementById('producto-select');
     
-    // Limpiar selects
     clienteSelect.innerHTML = '<option value="">Seleccionar cliente</option>';
     productoSelect.innerHTML = '<option value="">Seleccionar producto</option>';
     
-    // Llenar clientes
     clientes.forEach(cliente => {
         const option = document.createElement('option');
         option.value = cliente.id;
@@ -60,7 +58,6 @@ function loadSelects() {
         clienteSelect.appendChild(option);
     });
     
-    // Llenar productos
     productos.forEach(producto => {
         const option = document.createElement('option');
         option.value = producto.id;
@@ -72,7 +69,7 @@ function loadSelects() {
 // Variables globales para la venta actual
 let currentSaleItems = [];
 let totalVenta = 0;
-let ventaActual = null; // Para almacenar la venta que se va a imprimir
+let ventaActual = null;
 
 // Agregar item a la venta
 function addItemToSale() {
@@ -120,12 +117,10 @@ function addItemToSale() {
     updateSaleDisplay();
     updateTotal();
     
-    // Limpiar formulario excepto cliente
     document.getElementById('producto-select').value = '';
     document.getElementById('cantidad').value = '';
     document.getElementById('descuento').value = '0';
     
-    // Habilitar botón de completar venta
     document.getElementById('completar-venta').disabled = false;
 }
 
@@ -185,14 +180,21 @@ function completeSale() {
         return;
     }
     
-    // Crear venta
+    // Obtener información del cajero actual
+    const currentUser = getCurrentUser();
+    const cajeroNombre = currentUser ? currentUser.name : 'Cajero Desconocido';
+    const cajeroUsername = currentUser ? currentUser.username : 'desconocido';
+    
+    // Crear venta con información del cajero
     const venta = {
         id: generateId(),
         clienteId: cliente.id,
         clienteNombre: cliente.nombre,
         fecha: new Date().toISOString(),
         items: currentSaleItems,
-        total: totalVenta
+        total: totalVenta,
+        cajeroNombre: cajeroNombre,
+        cajeroUsername: cajeroUsername
     };
     
     // Guardar venta
@@ -210,27 +212,22 @@ function completeSale() {
     });
     saveData('productos', productos);
     
-    // Guardar la venta actual para impresión
     ventaActual = venta;
     
-    // Limpiar venta actual
     currentSaleItems = [];
     totalVenta = 0;
     updateSaleDisplay();
     updateTotal();
     displayVentas();
     
-    // Limpiar formulario
     document.getElementById('venta-form').reset();
     document.getElementById('completar-venta').disabled = true;
-    
-    // Mostrar botón de imprimir ticket
     document.getElementById('imprimir-ticket').style.display = 'block';
     
-    alert('Venta completada exitosamente');
+    alert(`Venta completada exitosamente\nCajero: ${cajeroNombre}`);
 }
 
-// Generar ticket HTML
+// Generar ticket HTML con nombre del vendedor
 function generateTicketHTML(venta) {
     const tienda = loadTiendaInfo();
     const fecha = new Date(venta.fecha);
@@ -252,6 +249,7 @@ function generateTicketHTML(venta) {
                 <p>Fecha: ${fechaFormateada}</p>
                 <p>Hora: ${horaFormateada}</p>
                 <p>Cliente: ${venta.clienteNombre}</p>
+                <p>Vendedor: ${venta.cajeroNombre}</p>
             </div>
             
             <div class="ticket-items">
@@ -279,7 +277,7 @@ function generateTicketHTML(venta) {
             
             <div class="ticket-footer">
                 <p>¡Gracias por su compra!</p>
-                <p>www.madtech-app.com</p>
+                <p>www.zevti.com</p>
             </div>
         </div>
     `;
@@ -310,7 +308,6 @@ function displayVentas() {
     const tbody = document.querySelector('#ventas-table tbody');
     tbody.innerHTML = '';
     
-    // Ordenar ventas por fecha (más recientes primero)
     ventas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
     
     ventas.forEach(venta => {
@@ -320,6 +317,7 @@ function displayVentas() {
         row.innerHTML = `
             <td>${venta.id}</td>
             <td>${venta.clienteNombre}</td>
+            <td>${venta.cajeroNombre}</td>
             <td>${fecha} ${hora}</td>
             <td>$${parseFloat(venta.total).toFixed(2)}</td>
             <td class="action-buttons">
@@ -356,7 +354,6 @@ function imprimirTicketVenta(ventaId) {
 
 // Inicializar cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
-    // Cargar información de la tienda
     const tienda = loadTiendaInfo();
     document.getElementById('nombre-tienda').value = tienda.nombre;
     document.getElementById('nit-tienda').value = tienda.nit;
@@ -366,7 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSelects();
     displayVentas();
     
-    // Event listeners
     document.getElementById('venta-form').addEventListener('submit', function(e) {
         e.preventDefault();
         addItemToSale();
@@ -380,20 +376,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Guardar información de la tienda
     document.getElementById('guardar-tienda').addEventListener('click', function() {
         const tiendaInfo = {
-            nombre: document.getElementById('nombre-tienda').value || 'MadTech App',
-            nit: document.getElementById('nit-tienda').value || '1094945331-1',
-            direccion: document.getElementById('direccion-tienda').value || 'Cra 13 #17 74',
-            telefono: document.getElementById('telefono-tienda').value || '(57) 3054668929'
+            nombre: document.getElementById('nombre-tienda').value || 'SUPERMERCADO APP',
+            nit: document.getElementById('nit-tienda').value || '123456789',
+            direccion: document.getElementById('direccion-tienda').value || 'Calle Principal #123',
+            telefono: document.getElementById('telefono-tienda').value || '(555) 123-4567'
         };
         
         saveTiendaInfo(tiendaInfo);
         alert('Información de la tienda guardada exitosamente');
     });
     
-    // Event listeners para el modal
     const closeBtn = document.querySelector('#ticket-modal .close');
     if (closeBtn) {
         closeBtn.addEventListener('click', cerrarTicketModal);
@@ -408,10 +402,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Cerrar con tecla Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             cerrarTicketModal();
         }
     });
+});
+
+// Mostrar menú de usuarios solo para administradores
+document.addEventListener('DOMContentLoaded', function() {
+    if (isAdmin()) {
+        const menuUsuarios = document.getElementById('menu-usuarios');
+        if (menuUsuarios) {
+            menuUsuarios.style.display = 'list-item';
+        }
+    }
 });

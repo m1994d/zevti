@@ -15,6 +15,9 @@
                 <li><a href="clientes.html">Clientes</a></li>
                 <li><a href="productos.html">Productos</a></li>
                 <li><a href="ventas.html">Ventas</a></li>
+                <li><a href="reportes.html">Reportes</a></li>
+                <!-- Solo mostrar el enlace de usuarios si es administrador -->
+<li><a href="usuarios.html" id="menu-usuarios" style="display: none;">Usuarios</a></li>
             </ul>
         </nav>
     </header>
@@ -93,15 +96,16 @@
             <div class="table-section">
                 <h3>Historial de Ventas</h3>
                 <table id="ventas-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Cliente</th>
-                            <th>Fecha</th>
-                            <th>Total</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Cajero</th>
+                        <th>Fecha</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
                     <tbody>
                         <!-- Las ventas se cargarán aquí dinámicamente -->
                     </tbody>
@@ -130,5 +134,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="js/ventas.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
